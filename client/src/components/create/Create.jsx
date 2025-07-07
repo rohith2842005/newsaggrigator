@@ -18,7 +18,7 @@ export const Create = () => {
 
     try {
       setIsSubmitting(true);
-      const response = await Axios.post("http://localhost:4000/news", formData, {
+      const response = await Axios.post("newsaggrigator-production.up.railway.app/news", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

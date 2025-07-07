@@ -13,7 +13,7 @@ export const User = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:4000/current-user")
+      .get("newsaggrigator-production.up.railway.app/current-user")
       .then((res) => setUserData(res.data))
       .catch((err) => console.error("Error fetching user data", err))
   }, [])
@@ -23,7 +23,7 @@ export const User = () => {
   }
   const handleLogout = () => {
     axios
-      .post("http://localhost:4000/set-current-user", { email: null })
+      .post("newsaggrigator-production.up.railway.app/set-current-user", { email: null })
       .then(() => {
         setUserData(null); // Clear local state
         alert("Logged out");

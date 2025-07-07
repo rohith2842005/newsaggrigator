@@ -16,13 +16,13 @@ import withNavigation from './withNavigation';
     const { email, password } = this.state;
     const data = { email, password };
 
-    Axios.post("http://localhost:4000/login", data)
+    Axios.post("newsaggrigator-production.up.railway.app/login", data)
       .then((res) => {
         if (res.status === 200) {
           alert("Login successful");
           localStorage.setItem("user", JSON.stringify(res.data[0] || email));
           // Wait for current-user to be set before navigating
-          return Axios.post("http://localhost:4000/set-current-user", { email });
+          return Axios.post("newsaggrigator-production.up.railway.app/set-current-user", { email });
         } else {
           return Promise.reject("Login failed");
         }
