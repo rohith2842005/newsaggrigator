@@ -7,6 +7,16 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import dotenv from 'dotenv';
+
+// ✅ Load environment variables early
+dotenv.config();
+
+// ✅ Warn if MONGO_URL is missing
+if (!process.env.MONGO_URL) {
+  console.error("❌ MONGO_URL not set in environment variables");
+  process.exit(1);
+}
 
 // ES Module dirname workaround
 const __filename = fileURLToPath(import.meta.url);
@@ -21,43 +31,33 @@ if (!fs.existsSync(uploadsDir)) {
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // ✅ Serve images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ✅ MongoDB Connection
 mongoose.set("strictQuery", true);
-mongoose.connect("mongodb+srv://harshithpaturi:Harsh%4013@cluster0.qfftbc9.mongodb.net/news");
+mongoose.connect(process.env.MONGO_URL);
 const db = mongoose.connection;
-db.on("open", () => console.log("connected to DB"));
-db.on("error", () => console.log("Error occurred"));
+db.on("open", () => console.log("✅ Connected to MongoDB"));
+db.on("error", () => console.log("❌ MongoDB connection error"));
 
-// ✅ Multer config for image upload
+// ✅ Multer config
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Must match static folder path
-  },
-  filename: function (req, file, cb) {
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + path.extname(file.originalname);
     cb(null, uniqueSuffix);
   },
 });
 const upload = multer({ storage });
 
-// ===== User Routes =====
-
+// ===== USER ROUTES =====
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
-
-    if (user.password !== password) {
-      return res.status(401).json({ message: "Incorrect password" });
-    }
-
-    res.status(200).json([user]);  // ✅ Make sure it's an array only if frontend expects it
+    if (!user) return res.status(401).json({ message: "User not found" });
+    if (user.password !== password) return res.status(401).json({ message: "Incorrect password" });
+    res.status(200).json([user]); // or just `user` based on frontend
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -68,18 +68,15 @@ app.post("/register", async (req, res) => {
   try {
     const { fname, lname, email, password } = req.body;
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
-    }
+    if (existingUser) return res.status(409).json({ message: "User already exists" });
     const newUser = await User.create({ fname, lname, email, password });
-    return res.status(201).json({ message: "User registered successfully", user: newUser });
+    return res.status(201).json({ message: "User registered", user: newUser });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
 
 let currentUserEmail = null;
-
 app.post("/set-current-user", (req, res) => {
   currentUserEmail = req.body.email;
   return res.json({ message: "Current user set" });
@@ -107,23 +104,12 @@ app.post("/update-user", async (req, res) => {
   }
 });
 
-// ===== News Post Routes =====
-
+// ===== NEWS ROUTES =====
 app.post("/news", upload.single("image"), async (req, res) => {
-  console.log("✅ POST /news endpoint hit");
-
-  if (req.file) {
-    console.log("🖼️ Image received:", req.file.filename);
-  } else {
-    console.log("⚠️ No image received");
-  }
-
-  console.log("📝 Post content:", req.body);
-
+  console.log("✅ POST /news hit");
   try {
     const { title, description } = req.body;
     const image = req.file?.filename || null;
-
     const article = await Article.create({ title, description, image });
     return res.status(201).json(article);
   } catch (err) {
@@ -141,11 +127,6 @@ app.get("/news", async (req, res) => {
   }
 });
 
-app.listen(4000, () => {
-  console.log("Server started on http://localhost:4000");
-});
-
-// DELETE a post
 app.delete("/news/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -156,20 +137,12 @@ app.delete("/news/:id", async (req, res) => {
   }
 });
 
-// PUT (Edit/Update) a post
 app.put("/news/:id", upload.single("image"), async (req, res) => {
   try {
     const { title, description } = req.body;
     const { id } = req.params;
-
-    const updateData = {
-      title,
-      description,
-    };
-
-    if (req.file) {
-      updateData.image = req.file.filename;
-    }
+    const updateData = { title, description };
+    if (req.file) updateData.image = req.file.filename;
 
     const updatedArticle = await Article.findByIdAndUpdate(id, updateData, {
       new: true,
@@ -179,4 +152,10 @@ app.put("/news/:id", upload.single("image"), async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
+});
+
+// ✅ Use dynamic PORT for Railway / Heroku
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server started on http://localhost:${PORT}`);
 });
