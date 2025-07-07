@@ -13,7 +13,7 @@ export const Account = () => {
   // Fetch current user data on mount
   useEffect(() => {
     axios
-      .get("newsaggrigator-production.up.railway.app/current-user")
+      .get("https://newsaggrigator.onrender.com/current-user")
       .then((res) => {
         const { fname, email, password } = res.data;
         setUserInfo({ fname, email, password });
@@ -34,7 +34,7 @@ export const Account = () => {
 
   const handleUpdate = () => {
     axios
-      .post("newsaggrigator-production.up.railway.app/update-user", userInfo)
+      .post("https://newsaggrigator.onrender.com/update-user", userInfo)
       .then(() => {
         alert("User info updated successfully!");
       })

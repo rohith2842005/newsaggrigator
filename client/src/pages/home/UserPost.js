@@ -5,7 +5,7 @@ export function UserPost() {
   const [arr, setArr] = useState([]);
 
   useEffect(() => {
-    Axios.get("newsaggrigator-production.up.railway.app/news")
+    Axios.get("https://newsaggrigator.onrender.com/news")
       .then((res) => {
         if (res.status === 200) {
           console.log(res.data);

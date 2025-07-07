@@ -17,7 +17,7 @@ class SignUp extends Component  {
     e.preventDefault();
     const { fname, lname, email, password } = this.state;
     console.log(fname, lname, email, password);
-    fetch("newsaggrigator-production.up.railway.app/register", {
+    fetch("https://newsaggrigator.onrender.com/register", {
       method: "POST",
       crossDomain: true,
       headers: {

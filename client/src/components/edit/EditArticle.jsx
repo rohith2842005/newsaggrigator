@@ -10,7 +10,7 @@ const EditArticle = () => {
   const [file, setFile] = useState(null);
 
   useEffect(() => {
-    axios.get(`newsaggrigator-production.up.railway.app/news`)
+    axios.get(`https://newsaggrigator.onrender.com/news`)
       .then((res) => {
         const found = res.data.find((item) => item._id === id);
         if (found) setArticle(found);
@@ -30,7 +30,7 @@ const EditArticle = () => {
     if (file) formData.append("image", file);
 
     try {
-      await axios.put(`newsaggrigator-production.up.railway.app/news/${id}`, formData, {
+      await axios.put(`https://newsaggrigator.onrender.com/news/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Article updated successfully");

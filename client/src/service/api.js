@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const URL=`newsaggrigator-production.up.railway.app`;
+const URL=`https://newsaggrigator.onrender.com`;
 export const addInfo = async(data) =>{
     try{
        await axios.post(`${URL}/create`, data);

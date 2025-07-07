@@ -17,7 +17,7 @@ export const Card = () => {
 
   const fetchArticles = async () => {
     try {
-      const res = await Axios.get("newsaggrigator-production.up.railway.app/news");
+      const res = await Axios.get("https://newsaggrigator.onrender.com/news");
       setPosts(res.data);
     } catch (err) {
       console.error("Error fetching articles:", err);
@@ -30,7 +30,7 @@ export const Card = () => {
 
   const handleDelete = async (id) => {
     try {
-      await Axios.delete(`newsaggrigator-production.up.railway.app/news/${id}`);
+      await Axios.delete(`https://newsaggrigator.onrender.com/news/${id}`);
       alert("Article deleted");
       fetchArticles(); // refresh list after deletion
     } catch (err) {
@@ -48,7 +48,7 @@ export const Card = () => {
               <img
                 src={
                   item.image
-                    ? `newsaggrigator-production.up.railway.app/uploads/${item.image}`
+                    ? `https://newsaggrigator.onrender.com/uploads/${item.image}`
                     : "https://via.placeholder.com/400x200?text=No+Image"
                 }
                 alt={item.title}
